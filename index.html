@@ -1,418 +1,489 @@
 <!DOCTYPE html>
-<html>
-	<head>
-		<meta charset="utf-8" />
-		<title>⟪女神异闻录:5 皇家版⟫角色介绍</title>
-		<link rel="icon" href="img/alibabaicon.png" sizes="16x16">
-		<script src="js/script.js"></script>
-		<link rel="stylesheet" href="css/styles.css" />
-		<style>
-			html,
-			body {
-				margin: 0;
-				font-family: Arial, sans-serif;
-				background-color: black;
-				text-align: center;
-				background-image: url(img/reddot.png);
-				background-size: cover;
-				background-position: center;
-				background-repeat: no-repeat;
-				overflow-x: hidden;
-			}
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>女神异闻录5 UI - 动态资源增强</title>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Anton&family=Noto+Sans+SC:wght@400;700;900&display=swap');
 
-			header {
-				padding: 1px;
-				text-align: left;
-				color: #ecf0f1;
-				background-image: url(img/bg_header.png);
-				background-size: auto;
-				background-position: left bottom;
-				background-repeat: repeat-x;
-				display: flex;
-			}
+        body {
+            margin: 0;
+            padding: 0;
+            font-family: 'Noto Sans SC', 'Helvetica Neue', Helvetica, Arial, sans-serif;
+            /* 背景图现在由JS动态设置，这里可以留一个备用颜色或 var */
+            background-image: var(--dynamic-bg-image, none);
+            background-size: cover;
+            background-position: center center;
+            background-attachment: fixed;
+            min-height: 100vh;
+            overflow-x: hidden;
+            overflow-y: auto;
+            color: white;
+            position: relative;
+        }
 
-			#totop {
-				position: fixed;
-				bottom: 20px;
-				right: 20px;
-				width: 64px;
-				height: 64px;
-				transition: all 0.1s ease-in-out;
-				background: url(img/totop.png);
-				background-repeat: no-repeat;
-				background-position: center;
-				background-size: contain;
-				z-index: 3;
-			}
+        .ui-container {
+            position: relative;
+            width: 100%;
+            padding-bottom: 50px;
+        }
 
-			.buttons {
-				text-align: center;
-				padding: 8px;
-				width: 128px;
-				text-decoration: none;
-				color: black;
-				background: url(img/buttonbg.png);
-				background-repeat: no-repeat;
-				transition: all 0.2s ease-in-out;
-			}
+        .p5-button-borrowed-style {
+            text-decoration: none;
+            text-align: center;
+            transition: all 0.2s ease-in-out;
+            /* 按钮背景图直接使用GitHub Pages的相对路径 */
+            background-image: url('img/buttonbg.png'); /* 确保buttonbg.png在img文件夹中 */
+            background-repeat: no-repeat;
+            background-size: cover;
+            background-position: center;
+            color: white;
+            cursor: pointer;
+        }
+        .p5-button-borrowed-style:hover {
+            transform: scale(1.1);
+            opacity: 0.85;
+        }
 
-			.buttons:hover {
-				transform: scale(1.1);
-				transition: all 0.2s ease-in-out;
-				opacity: 0.5;
-			}
+        /* --- 现有UI元素的样式 (保持大部分不变) --- */
+        .top-left-info { position: fixed; top: 20px; left: 20px; text-align: left; line-height: 1; z-index: 200; }
+        .date-display { font-family: 'Anton', sans-serif; font-size: 70px; font-weight: bold; color: white; letter-spacing: -2px; margin-bottom: -10px; }
+        .date-display .month-day { font-size: 90px; }
+        .date-display .weekday { font-size: 40px; display: inline-block; transform: translateY(-25px) translateX(-5px); background-color: #D90000; padding: 2px 8px; clip-path: polygon(0 0, 100% 0, 90% 100%, 0% 100%); }
+        .time-of-day { font-size: 30px; font-weight: bold; color: white; background-color: black; padding: 5px 10px; display: inline-block; margin-bottom: 5px; clip-path: polygon(10% 0, 100% 0, 100% 100%, 0% 100%); }
+        .weather { font-size: 20px; font-weight: bold; color: black; background-color: white; padding: 5px 10px; display: inline-block; clip-path: polygon(0 0, 90% 0, 100% 100%, 0% 100%); }
+        .weather .icon { font-size: 24px; margin-right: 5px; }
 
-			#poster {
-				margin: auto;
-				background-image: url(img/poster.png);
-				background-repeat: no-repeat;
-				background-position: center top;
-				position: relative;
-				height: 700px;
-			}
+        .top-right-objective { position: fixed; top: 30px; right: 30px; background-color: #D90000; padding: 10px 20px; text-align: center; clip-path: polygon(5% 0, 100% 0, 100% 100%, 0% 100%); z-index: 200; }
+        .countdown { font-size: 16px; margin: 0 0 5px 0; font-weight: normal; }
+        .countdown strong { font-size: 28px; font-family: 'Anton', sans-serif; }
+        .objective-text { font-size: 22px; font-weight: bold; margin: 0; }
 
-			#logo {
-				max-width: 256px;
-				position: absolute;
-				bottom: 0;
-				left: 50%;
-				transform: translateX(-50%);
-			}
+        .sns-toggle-button { position: fixed; top: 150px; left: 20px; width: 70px; height: 70px; display: flex; justify-content: center; align-items: center; font-family: 'Anton', sans-serif; font-size: 28px; font-weight: bold; border: 3px solid white; clip-path: polygon(20% 0%, 80% 0%, 100% 20%, 100% 80%, 80% 100%, 20% 100%, 0% 80%, 0% 20%); z-index: 190; box-shadow: 0 0 10px rgba(0,0,0,0.5); }
+        .sns-toggle-button .notification-badge { position: absolute; top: -10px; right: -10px; background-color: #D90000; color: white; width: 28px; height: 28px; border-radius: 50%; display: flex; justify-content: center; align-items: center; font-size: 16px; font-weight: bold; border: 2px solid white; box-shadow: 0 0 5px rgba(0,0,0,0.3); }
 
-			.text1 {
-				height: 500px;
-				width: 1024px;
-				margin: auto;
-				margin-bottom: -150px;
-				background: url(img/red.png);
-				background-size: contain;
-				background-position-x: 70%;
-				background-repeat: no-repeat;
-				padding-top: 64px;
-			}
+        .sns-messages-container { position: fixed; top: 150px; left: 100px; width: 450px; max-height: calc(100vh - 170px); overflow-y: auto; z-index: 180; display: none; }
+        .message-list { list-style: none; padding:0; margin:0; background-color: rgba(0,0,0,0.9); padding:10px; border-radius:5px; }
+        .message-item { display:flex; flex-wrap:wrap; align-items:center; margin-bottom:8px; padding:10px 15px 10px 10px; background-color:black; color:white; font-size:18px; font-weight:bold; position:relative; clip-path: polygon(0 0, 100% 0, 95% 100%, 5% 100%); cursor:pointer; transition:background-color .2s; }
+        .message-item-content { display:flex; align-items:center; width:100%; }
+        .message-item.selected { background-color:#D90000; }
+        .message-item.selected .message-text, .message-item.selected .message-date { color:white; }
+        .new-badge { background-color:#D90000; color:white; font-size:14px; padding:2px 8px; margin-right:10px; font-weight:bold; clip-path: polygon(0 0, 100% 0, 85% 100%, 15% 100%); }
+        
+        .character-portrait { /* 现在会由JS设置背景图 */
+            width:40px; height:40px; 
+            background-color:#555; /* 图片加载失败时的备用背景 */
+            background-size: cover; /* 确保图片填满或适应容器 */
+            background-position: center;
+            background-repeat: no-repeat;
+            border:2px solid white; margin-right:10px; transform:rotate(-5deg); 
+            display:flex; justify-content:center; align-items:center; 
+            font-size:10px; color:#ccc; filter:grayscale(100%); 
+        }
+        .character-portrait img { display: none; } /* 如果之前用img标签，现在隐藏，因为背景图接管 */
 
-			.spec {
-				width: 800px;
-				height: auto;
-				margin: auto;
-				margin-top: 128px;
-				background: url(img/bg_spec.png);
-				background-size: contain;
-				background-repeat: no-repeat;
-				background-position: center;
-				display: flex;
-				justify-content: space-between;
-				padding: 64px;
-			}
+        .message-date { color:#aaa; margin-right:10px; font-size:16px; }
+        .message-text { flex-grow:1; }
+        .message-item > .selected-indicator { display:none; }
+        .message-item.selected > .selected-indicator { display:inline-block; position:absolute; right: -5px; top: 10px; transform: translateY(0%) rotate(-15deg); font-size:28px; color:white; }
+        .sub-messages-panel { width:calc(100% + 25px); margin-left:-10px; margin-top:8px; padding:10px; background-color:#222; border-radius:0 0 5px 5px; display:none; clip-path: polygon(2% 0, 98% 0, 100% 100%, 0% 100%); }
+        .sub-message { padding:8px 5px; font-size:16px; font-weight:normal; border-bottom:1px solid #444; color:#ddd; }
+        .sub-message:last-child { border-bottom:none; }
+        .sub-message .sender { font-weight:bold; color:#D90000; margin-right:5px; }
 
-			.about {
-				margin-top: 64px;
-				width: 100%;
-				height: 800px;
-				background: url(img/bg_bottom.png);
-				display: flex;
-			}
+        .activity-log-toggle-button { position: fixed; top: 240px; left: 20px; width: 70px; height: 70px; border: 3px solid #888; display: flex; justify-content: center; align-items: center; font-family: 'Noto Sans SC', sans-serif; font-size: 14px; text-align: center; line-height: 1.2; font-weight: bold; clip-path: polygon(20% 0%, 80% 0%, 100% 20%, 100% 80%, 80% 100%, 20% 100%, 0% 80%, 0% 20%); z-index: 190; }
 
-			.abouttext p {
-				background: url(img/bottom_info_text.png);
-				background-size: contain;
-				background-repeat: no-repeat;
-				background-position: center;
-				color: white;
-				padding-top: 16px;
-				text-align: left;
-				height: 340px;
-				width: 620px;
-				padding: 100px;
-				padding-left: 64px;
-				padding-top: 32px;
-				font-size: 22px;
-				margin-top: -32px;
-				margin-bottom: -128px;
-			}
+        .activity-log-container { position: absolute; top: 60px; left: 50%; transform: translateX(-50%); width: 90%; max-width: 750px; z-index: 170; display: none; padding: 20px; padding-bottom: 100px; font-family: 'Noto Sans SC', sans-serif; }
+        .activity-log-main-title { position: relative; width: 320px; margin: 0 auto 10px auto; padding: 10px 20px; background-color: white; color: black; border: 3px solid black; text-align: center; transform: skewX(-10deg); z-index: 15; }
+        .activity-log-main-title h1 { margin: 0; font-size: 28px; font-weight: 900; color: white; text-shadow: -1.5px -1.5px 0 #000, 1.5px -1.5px 0 #000, -1.5px 1.5px 0 #000, 1.5px 1.5px 0 #000, -1.5px 0 0 #000, 1.5px 0 0 #000, 0 -1.5px 0 #000, 0 1.5px 0 #000; transform: skewX(10deg); }
+        .activity-log-subtitle { text-align: center; font-size: 16px; color: #ccc; margin-bottom: 30px; position: relative; z-index: 15; }
+        .panels-wrapper { position: relative; width: 100%; min-height: 450px; }
+        .activity-panel { background-color: #1a1a1a; padding: 15px; position: absolute; }
+        .activity-panel h2 { margin: 0 0 10px 0; font-size: 24px; font-weight: 700; display: flex; justify-content: space-between; align-items: baseline; text-shadow: 1px 1px 2px rgba(0,0,0,0.5); }
+        .activity-panel h2 .percentage { font-family: 'Anton', sans-serif; font-size: 36px; }
+        .activity-panel ul { list-style: none; padding-left: 5px; margin: 0; }
+        .activity-panel ul li { margin-bottom: 5px; font-size: 15px; }
+        .activity-panel ul li::before { content: "・"; margin-right: 5px; }
+        .thief-activities { color: #FF1E1E; top: 0; left: 0; width: 250px; min-height: 100px; z-index: 10; clip-path: polygon(0% 15%, 15% 0%, 85% 0%, 100% 10%, 100% 85%, 80% 100%, 20% 100%, 0% 90%); }
+        .thief-activities h2, .thief-activities .no-items { color: #FF1E1E; }
+        .daily-life { color: #FFD93D; top: 130px; left: 30px; width: 280px; min-height: 200px; z-index: 12; clip-path: polygon(10% 0%, 90% 0%, 100% 20%, 100% 80%, 85% 100%, 15% 100%, 0% 85%, 0% 15%); }
+        .daily-life h2 { color: #FFD93D; }
+        .coop-activities { color: #4DABFF; top: 20px; right: 0; width: 320px; min-height: 280px; z-index: 11; clip-path: polygon(0% 0%, 80% 5%, 100% 15%, 95% 90%, 85% 100%, 10% 95%, 0% 80%, 5% 20%); }
+        .coop-activities h2 { color: #4DABFF; }
+        .no-items { font-style: italic; font-size: 16px; text-align: center; padding: 10px 0; }
+        .central-dagger { position: absolute; left: 45%; top: 280px; transform: translateX(-50%) rotate(15deg); font-size: 40px; color: white; text-shadow: 0 0 5px black; z-index: 13; }
+        .bottom-elements-wrapper { position: absolute; bottom: 60px; right: 30px; text-align: right; z-index: 14; }
+        .average-level-bubble { background-color: white; color: black; padding: 8px 20px; border: 2px solid black; border-radius: 5px; font-size: 16px; font-weight: bold; position: relative; margin-bottom: 15px; display: inline-block; clip-path: polygon(0% 0%, 100% 0%, 100% 75%, 70% 75%, 50% 100%, 30% 75%, 0% 75%); }
+        .player-level { font-family: 'Anton', sans-serif; font-size: 52px; color: #FF1E1E; font-weight: bold; line-height: 1; }
+        .player-level span { font-size: 28px; vertical-align: baseline; margin-right: 5px;}
+        .return-button-activity { position: absolute; bottom: 15px; right: 30px; font-size: 18px; padding: 8px 15px; z-index: 200; width: auto; height: auto; border: 2px solid #999; clip-path: polygon(10% 0, 100% 0, 100% 80%, 90% 100%, 0 100%, 0 20%); color: white; }
+        .return-button-activity .key { border: 1px solid white; padding: 0 5px; margin-right: 5px; display: inline-block; min-width: 15px; text-align: center; background-color: rgba(0,0,0,0.4); border-radius: 2px; }
 
-			.characterimgs {
-				display: flex;
-				background-color: aqua;
-				position: relative;
-				width: 800px;
-				height: 512px;
-				background: url(img/bg_slider_text1.png);
-				background-size: contain;
-				background-repeat: no-repeat;
-				margin: auto;
-			}
+    </style>
+</head>
+<body>
+    <div class="ui-container">
+        <div class="top-left-info">
+            <div class="date-display"><span class="month-day">8/3</span><span class="weekday">WED</span></div>
+            <div class="time-of-day">夜晚</div>
+            <div class="weather"><span class="icon">☔</span>局部暴雨</div>
+        </div>
+        <div class="top-right-objective">
+            <p class="countdown">距离X日 还剩 <strong>18</strong>日</p>
+            <p class="objective-text">盗取双叶的心</p>
+        </div>
+        <div class="sns-toggle-button p5-button-borrowed-style" id="snsToggleButton">
+            SNS <span class="notification-badge">2</span>
+        </div>
+        <div class="activity-log-toggle-button p5-button-borrowed-style" id="activityLogToggleButton">
+            行动<br>记录
+        </div>
+        <div class="sns-messages-container" id="snsMessagesContainer">
+             <ul class="message-list" id="messageList">
+                <!-- SNS消息项会由JS动态填充 -->
+            </ul>
+        </div>
+        <div class="activity-log-container" id="activityLogContainer">
+            <div class="activity-log-main-title"><h1>大家的行动记录</h1></div>
+            <div class="activity-log-subtitle">8/3 目前</div>
+            <div class="panels-wrapper">
+                <div class="activity-panel thief-activities">
+                    <h2>怪盗行动 <span class="percentage">0%</span></h2>
+                    <ul id="thiefActivityList"><li class="no-items">等待数据...</li></ul>
+                </div>
+                <div class="activity-panel daily-life">
+                    <h2>日常生活 <span class="percentage">42%</span></h2>
+                     <ul id="dailyLifeList"><li class="no-items">等待数据...</li></ul>
+                </div>
+                <div class="activity-panel coop-activities">
+                    <h2>COOP活动 <span class="percentage">58%</span></h2>
+                    <ul id="coopActivityList"><li class="no-items">等待数据...</li></ul>
+                </div>
+                <div class="central-dagger">†</div>
+            </div>
+            <div class="bottom-elements-wrapper">
+                <div class="average-level-bubble" id="averageLevelTextElem">大家的平均等级</div>
+                <div class="player-level"><span id="playerLevelPrefixElem">PLV</span> <span id="playerLevelValueElem">36</span></div>
+            </div>
+            <div class="return-button-activity p5-button-borrowed-style" id="activityLogReturnButton">
+                <span class="key">C</span>返回
+            </div>
+        </div>
+        <!-- 主内容面板 (如果您的AI输出包含主内容面板HTML) -->
+        <div class="main-content-panel" id="mainContentPanel" style="display:none; position: fixed; top: 50%; left: 50%; transform: translate(-50%, -50%); width: 60%; max-width:600px; background-color: rgba(0,0,0,0.8); padding: 20px; border: 1px solid red; z-index:300;">
+            <div class="content-header" id="mainContentHeader" style="color: red; font-size: 24px; text-align:center; margin-bottom:15px;">主面板标题</div>
+            <div class="content-body" id="injectedContentBody" style="max-height: 60vh; overflow-y:auto;">
+                <p>主内容区域...</p>
+            </div>
+        </div>
+    </div>
 
-			.buynow {
-				position: absolute;
-				bottom: 128px;
-				right: 100px;
-				height: 128px;
-				width: 256px;
-				background: url(img/buynow.png);
-				background-repeat: no-repeat;
-				background-position: center;
-				background-size: contain;
-				z-index: 3;
-				transition: opacity 0.1s ease-in-out;
-				opacity: 1;
-			}
+    <script>
+        // --- 辅助函数和变量 ---
+        const el = (id) => document.getElementById(id);
+        // GitHub Pages 基础路径 (你的用户名.github.io/仓库名/)
+        const GITHUB_PAGES_BASE_URL = 'https://cnfh1746.github.io/pp5/'; // 请确保这个与你的实际URL一致
 
-			.buynow:hover {
-				transition: opacity 0.1s ease-in-out;
-				opacity: 0.8;
-			}
+        // 背景图片列表 (e1.png 到 e12.png)
+        const backgroundImages = [];
+        for (let i = 1; i <= 12; i++) {
+            backgroundImages.push(`e${i}.png`);
+        }
 
-			.pv {
-				width: 303px;
-				height: 202px;
-				background: url(img/pv.png);
-				position: absolute;
-				left: 64px;
-				bottom: 128px;
-			}
+        // SNS头像文件名映射 (key是AI输出的发送者标识，value是图片文件名)
+        // 你需要根据AI输出的`SNS消息_X_发送者:`的值来定义这里的key
+        // 例如，如果AI输出 "祐介"，而你想用 changebtn8.png，则 "祐介": "changebtn8.png"
+        // 我这里先用简单的字母作为key示例
+        const snsAvatarMap = {
+            "Y": "changebtn8.png",  // 假设 "Y" 对应 喜多川祐介 (changebtn8)
+            "S": "changebtn7.png",  // 假设 "S" 对应 佐仓惣治郎 (changebtn7)
+            "R": "changebtn2.png",  // 假设 "R" 对应 坂本龙司 (changebtn2)
+            "M": "changebtn4.png",  // 假设 "M" 对应 新岛真 (changebtn4)
+            "A": "changebtn3.png",  // 假设 "A" 对应 高卷杏 (changebtn3)
+            "Makoto": "changebtn4.png", // 如果AI输出的是英文名
+            "Ryuji": "changebtn2.png",
+            // ... 根据你的AI输出和期望的头像，添加更多映射 ...
+            // 确保 changebtn2.png 到 changebtn10.png 都在 img/ 目录下
+            "Default": "changebtn1.png" // 一个默认头像，以防找不到匹配
+        };
 
-			.pv video {
-				position: absolute;
-				right: 8px;
-				bottom: 8px;
-				width: 251px;
-				height: 141px;
-			}
 
-			#x {
-				height: 64px;
-				position: absolute;
-				right: 12%;
-				top: 10%;
-			}
+        // --- 核心功能函数 ---
 
-			#openbtn {
-				position: absolute;
-				z-index: 999;
-				bottom: 8px;
-				right: 8px;
-				width: 251px;
-				height: 141px;
-				opacity: 0;
-			}
-		</style>
-	</head>
-	<body>
-		<a id="totop" class="out1"></a>
-		<header>
-			<h1 class="titletext">Persona 5 Royal</h1>
-			<div class="buttonarea">
-				<a href="https://asia.sega.com/persona-remaster/p5r/cht/" class="buttons">官方网站</a>
-				<a href="buy.html" class="buttons">购买</a>
-				<a href="gallery.html" class="buttons">画廊</a>
-			</div>
-		</header>
-		<div class="overlaytext">
-			<img class="floattext" src="img/text1.png" alt="" />
-			<img class="floattext" src="img/text2.png" alt="" />
-		</div>
-		<div class="main">
-			<div id="poster">
-				<img id="logo" src="img/p5r.png" alt="P5R Logo" />
-				<a href="buy.html" class="buynow"></a>
-				<div class="pv">
-					<video autoplay muted onclick="Popup()">
-						<source src="assets/p5r_pv.mp4" type="video/mp4">
-						Your browser does not support the video tag.
-					</video>
-					<button id="openbtn" onclick="Popup()"></button>
-				</div>
-			</div>
-			<div class="popup" id="popupv">
-				<div>
-					<video id="pv_main" controls>
-						<source src="assets/p5r_pv.mp4" type="video/mp4">
-						Your browser does not support the video tag.
-					</video>
-					<img src="img/x.png" onclick="closePopup()" alt="" id="x" />
-				</div>
-			</div>
-			<div class="text1">
-				<img src="img/intro_title.png" alt="" />
-				<p>少年主角因某个缘由转学到“东京”的高中后，开始做起了奇异的梦。<br />——你确实是命运之『囚』啊。<br />少年被告知不久之后他就会迎来毁灭。<br /><br /></p>
-				<p>为了完成赋予他的“更生”任务，也为了将人们从邪恶欲望中拯救出来，<br />成为怪盗的主角与各种人邂逅，结下羁绊。<br />在度过了宝贵的一年后，等待你的将是……？</p>
-			</div>
-			<div class="characters">
-				<img class="charatitle" src="img/chara_title.png" alt="" />
-				<div id="div1" class="in">
-					<div class="characterimgs">
-						<img class="charastar" src="img/chara_star.png" alt="" />
-						<img class="kaitouimg" src="img/Joker.png" alt="" />
-						<img class="personaimg" src="img/Arsene.png" alt="" />
-						<img class="charaname" src="img/chara1_name.png" alt="" />
-						<h2>少年主人公因为某个理由转学到「东京」的高中，同时他也开始做起奇怪的梦。──你正是命运的「囚徒」。不远的将来，你将面临毁灭。</h2>
-					</div>
-				</div>
-				<div id="div2" class="out">
-					<div class="characterimgs">
-						<img class="charastar" src="img/chara_star.png" alt="" />
-						<img class="kaitouimg" src="img/Skull.png" alt="" />
-						<img class="personaimg" src="img/Kidd.png" alt="" />
-						<img class="charaname" src="img/chara2_name.png" alt="" />
-						<h2>私立秀尽学园的二年级学生，父母已离婚，心之怪盗团的冲锋队长。粗暴的言语行动非常引人注目，学校内的“问题儿”，平时就经常被学园的教员与指导员“关照”，似乎品行很有问题。<h2>
-					</div>
-				</div>
-				<div id="div3" class="out">
-					<div class="characterimgs">
-						<img class="charastar" src="img/chara_star.png" alt="" />
-						<img class="kaitouimg" src="img/Carmen.png" alt="" />
-						<img class="personaimg" src="img/Panther.png" alt="" />
-						<img class="charaname" src="img/chara3_name.png" alt="" />
-						<h2>私立秀尽学园的二年级学生，主人公的同班同学，心之怪盗团的女演员。美国混血的日本归国子女，能说出一口流利的英语。性格天真率直，由于拥有模特儿的身材及亮丽的样貎，使同学们对她产生距离感而被孤立。
-						</h2>
-					</div>
-				</div>
-				<div id="div4" class="out">
-					<div class="characterimgs">
-						<img class="charastar" src="img/chara_star.png" alt="" />
-						<img class="Naviimg" src="img/Queen.png" alt="" />
-						<img class="Necronomiconimg" src="img/Johanna.png" alt="" />
-						<img class="charaname" src="img/chara4_name.png" alt="" />
-						<h2>私立秀尽学园的三年级生，和奥村春同年级，是主人公、坂本龙司、高卷杏的学姐，学校的学生会长。品行端正、文武双全，有着一本正经绝不妥协的优等生气质，但也因此，站在学生会长的立场上有些飘忽不定。某些时候意外的容易受惊。
-						</h2>
-					</div>
-				</div>
-				<div id="div5" class="out">
-					<div class="characterimgs">
-						<img class="charastar" src="img/chara_star.png" alt="" />
-						<img class="kaitouimg" src="img/Noir.png" alt="" />
-						<img class="personaimg" src="img/Milady.png" alt="" />
-						<img class="charaname" src="img/chara5_name.png" alt="" />
-						<h2>私立秀尽学园的三年级生，和新岛真同年级，是主人公、坂本龙司、高卷杏的学姐。奥村集团的社长奥村邦和的女儿，出身于上流社会，拥有良好的教育和修养。</h2>
-					</div>
-				</div>
-				<div id="div6" class="out">
-					<div class="characterimgs">
-						<img class="charastar" src="img/chara_star.png" alt="" />
-						<img class="kaitouimg" src="img/Cendrillon.png" alt="" />
-						<img class="personaimg" src="img/Violet.png" alt="" />
-						<img class="charaname" src="img/chara6_name.png" alt="" />
-						<h2>私立秀尽学园的一年级转校生，怪盗团新成员。体育特长生，是一位成绩优异的艺术体操选手，秀尽学园对其表现有着很高的期待。</h2>
-					</div>
-				</div>
-				<div id="div7" class="out">
-					<div class="characterimgs">
-						<img class="charastar" src="img/chara_star.png" alt="" />
-						<img class="kaitouimg" src="img/Mona.png" alt="" />
-						<img class="personaimg" src="img/Zorro.png" alt="" />
-						<img class="charaname" src="img/chara7_name.png" alt="" />
-						<h2>心之怪盗团的精神支柱。拥有变身能力，在现实世界以一只普通的黑猫姿态示人，还会利用黑猫的姿态为怪盗团进行刺探的工作。</h2>
-					</div>
-				</div>
-				<div id="div8" class="out">
-					<div class="characterimgs">
-						<img class="charastar" src="img/chara_star.png" alt="" />
-						<img class="kaitouimg" src="img/Goemon.png" alt="" />
-						<img class="personaimg" src="img/Fox.png" alt="" />
-						<img class="charaname" src="img/chara8_name.png" alt="" />
-						<h2>公立洸星高校的二年级生，擅长绘画和节能派料理，兴趣是以节省车费为目的的散步和人类观察。</h2>
-					</div>
-				</div>
-				<div id="div9" class="out">
-					<div class="characterimgs">
-						<img class="charastar" src="img/chara_star.png" alt="" />
-						<img class="Naviimg" src="img/Navi.png" alt="" />
-						<img class="Necronomiconimg" src="img/Necronomicon.png" alt="" />
-						<img class="charaname" src="img/chara9_name.png" alt="" />
-						<h2>勒布朗咖啡店老板佐仓惣治郎的隐瞒了存在感的养女。天才少女，精通心理学，情报学，程序设计，尤其是黑客技术。爱好是点心、电子游戏和动画——以及朋友。</h2>
-					</div>
-				</div>
-				<div id="div10" class="out">
-					<div class="characterimgs">
-						<img class="charastar" src="img/chara_star.png" alt="" />
-						<img class="kaitouimg" src="img/RobinHood.png" alt="" />
-						<img class="personaimg" src="img/Crow.png" alt="" />
-						<img class="charaname" src="img/chara10_name.png" alt="" />
-						<h2>高中生侦探，“侦探王子”，协助警方调查“废人化”和“怪盗团”事件。经常参加电视访谈节目，拥有很高的人气，被认为是正义的化身。自称侦探工作和电视节目给他的学校出勤造成了不小的麻烦，所谓“优秀的人也有自己的烦恼”。
-						</h2>
-					</div>
-				</div>
-			</div>
-			<div class="changebar">
-				<div>
-					<img src="img/changebtn1.png" onclick="switchTo('div1')" alt="" />
-					<img src="img/changebtn2.png" onclick="switchTo('div2')" alt="" />
-					<img src="img/changebtn3.png" onclick="switchTo('div3')" alt="" />
-					<img src="img/changebtn4.png" onclick="switchTo('div4')" alt="" />
-					<img src="img/changebtn5.png" onclick="switchTo('div5')" alt="" />
-				</div>
-				<div>
-					<img src="img/changebtn6.png" onclick="switchTo('div6')" alt="" />
-					<img src="img/changebtn7.png" onclick="switchTo('div7')" alt="" />
-					<img src="img/changebtn8.png" onclick="switchTo('div8')" alt="" />
-					<img src="img/changebtn9.png" onclick="switchTo('div9')" alt="" />
-					<img src="img/changebtn10.png" onclick="switchTo('div10')" alt="" />
-				</div>
-			</div>
-			<div class="spec">
-				<div class="speccontent">
-					<img class="specimg" src="img/spec.png" alt="" />
-					<div class="spectext">
-						<h2 class="buttons">游戏名称</h2>
-						<h3> 女神异闻录 5 皇家版</h3>
-					</div>
-					<strong>
-						<div class="spectext">
-							<h2 class="buttons">游戏类型</h2>
-							<h3> JRPG</h3>
-						</div>
-					</strong>
-					<div class="spectext">
-						<h2 class="buttons">支持平台</h2>
-						<h3>Xbox Game Pass<br>Xbox Series X|S<br>PlayStation®5<br>Nintendo Switch™<br>Steam <br />
-							Windows</h3>
-					</div>
-					<div class="spectext">
-						<h2 class="buttons">支持语言</h2>
-						<h3>多语言字幕/日语语音</h3>
-					</div>
-				</div>
-				<img class="cover" src="img/cover.png" alt="cover" />
-			</div>
-			<img src="img/system_requirements.png" alt="" class="sr" />
-			<div class="about">
-				<div class="abouttext">
-					<img src="img/bottom_info_title.png" alt="" />
-					<p>『女神异闻录』为青少年侠盗RPG系列游戏，以现代日本都市为舞台，玩家在体验校园生活、友情、恋爱等生活小事的同时，须挺身面对不可思议的谣言、都市传说等超自然事件。描写主角与觉醒「人格面具能力」的少年少女相遇，并对抗重重困难，逐渐成长的故事。近年亦将触角伸至电视动画、剧场版动画、武道馆Live音乐会、舞台剧、漫画等媒体，每天不断地扩展其魅力。作品中的「人格面具」指的是沉睡於自身体内的「另一个人格」化身成「自古以来的神或恶魔」的样貌现身的个体，是一种拥有强大力量的「另一个自己」
-					</p>
-					<img src="img/serise.png" alt="" />
-				</div>
-				<div class="aboutimg">
-					<img src="img/bottom_info_ss1.png" alt="" />
-					<img src="img/bottom_info_ss2.png" alt="" />
-				</div>
-			</div>
-			<div class="end">
-				<div class="logos">
-					<img src="img/sega_logo_s.png" alt="" />
-					<img src="img/p_studio_logo.png" alt="" />
-					<img src="img/atlus_logo.png" alt="" />
-					<img src="img/electrome.png" alt="" />
-				</div>
-				<p>本页面为个人网页设计作业，与ATLUS无关，与SEGA无关</p>
-				<p>ElectroME 2023年12月25日</p>
-				<div class="logos">
-					<img src="img/ps5_logo.png" alt="" />
-					<img src="img/steam_logo.png" alt="" />
-					<img src="img/switch_logo.png" alt="" />
-					<img src="img/xbox_xs_logo.png" alt="" />
-					<img src="img/xbox_one_logo.png" alt="" />
-				</div>
-				<p>Microsoft Xbox Series X, Xbox Series S, Xbox One and related Xbox logos are trademarks and/or
-					registered trademarks of Microsoft Corporation and the Microsoft group of companies. <br /></p>
-				<p>""PlayStation", "PS4" and "PS5" are trademarks and/or registered trademarks of Sony Interactive
-					Entertainment Inc. <br /></p>
-				<p>The Nintendo Switch LOGO, Nintendo Switch is a trademark of Nintendo. <br /></p>
-				<p>©2021 Valve Corporation. Steam is trademarks and/or registered trademarks of Valve Corporation in the
-					U.S. and/or other countries. <br /></p>
-				<p>©ATLUS ©SEGA All rights reserved.</p>
-			</div>
-		</div>
-	</body>
+        // 设置随机背景图片
+        function setRandomBackgroundImage() {
+            const randomIndex = Math.floor(Math.random() * backgroundImages.length);
+            const imageName = backgroundImages[randomIndex];
+            const imageUrl = GITHUB_PAGES_BASE_URL + 'img/' + imageName; // 构建完整的GitHub Pages URL
+            document.body.style.setProperty('--dynamic-bg-image', `url('${imageUrl}')`);
+            console.log("设置随机背景图片为:", imageUrl);
+        }
+
+        // (你的 manageP5Music 函数需要在这里或被引用)
+        // function manageP5Music(filename) { /* ... */ }
+
+
+        // (你的 parseAIDataToStructuredObject 函数需要在这里或被引用)
+        /*
+        function parseAIDataToStructuredObject(dataString) {
+            // ... 你的完整解析逻辑 ...
+            // 确保这个函数能正确解析所有AI输出的字段
+            const data = {}; // 示例
+            const lines = dataString.trim().split('\n');
+            lines.forEach(line => {
+                const parts = line.match(/^([^:]+):\s*(.*)$/);
+                if (parts) {
+                    const key = parts[1].trim().replace(/\s/g, ''); // 移除key中的空格以便匹配
+                    let value = parts[2].trim();
+                    // 简单处理，你需要扩展这个逻辑以匹配所有字段
+                    if (key === "背景图片URL") data.背景图片URL = value;
+                    else if (key === "音乐文件名") data.音乐文件名 = value;
+                    // ... etc. for all your fields ...
+                    else {
+                        // 示例：处理SNS消息 (你需要一个更完善的循环和索引逻辑)
+                        if (key.startsWith("SNS消息_") && key.endsWith("_发送者")) {
+                            if(!data.SNS消息列表) data.SNS消息列表 = [];
+                            const index = parseInt(key.match(/_(\d+)_/)[1]) -1;
+                            if(!data.SNS消息列表[index]) data.SNS消息列表[index] = {};
+                            data.SNS消息列表[index].发送者 = value;
+                        }
+                        // ... add more parsing for other SNS fields and activity log fields ...
+                    }
+                }
+            });
+            return data;
+        }
+        */
+        // !!! 请确保你有一个完整的 parseAIDataToStructuredObject 函数 !!!
+        // 下面的 populate 函数依赖于它正确解析数据
+
+
+        // 填充顶部左侧信息 (日期、天气等)
+        function populateTopLeftInfo(data) {
+            if (!data) return;
+            const dateDisplay = document.querySelector('.top-left-info .date-display');
+            if (dateDisplay) {
+                const monthDayElem = dateDisplay.querySelector('.month-day');
+                const weekdayElem = dateDisplay.querySelector('.weekday');
+                if(monthDayElem) monthDayElem.textContent = data.当前日期 || "--/--";
+                if(weekdayElem) weekdayElem.textContent = data.当前星期 || "---";
+            }
+            const timeOfDayElem = document.querySelector('.top-left-info .time-of-day');
+            if(timeOfDayElem) timeOfDayElem.textContent = data.当前时段 || "---";
+
+            const weatherElem = document.querySelector('.top-left-info .weather');
+            if(weatherElem){
+                const iconElem = weatherElem.querySelector('.icon');
+                if(iconElem) iconElem.textContent = data.当前天气图标 || "?";
+                // 获取文本节点来设置天气描述
+                const textNode = Array.from(weatherElem.childNodes).find(node => node.nodeType === Node.TEXT_NODE);
+                if(textNode) textNode.nodeValue = ` ${data.当前天气描述 || "---"}`;
+                else weatherElem.appendChild(document.createTextNode(` ${data.当前天气描述 || "---"}`));
+            }
+        }
+
+        // 填充右上角目标信息
+        function populateObjective(data) {
+            if (!data) return;
+            const countdownTextElem = document.querySelector('.top-right-objective .countdown');
+            if(countdownTextElem){
+                const strongElem = countdownTextElem.querySelector('strong');
+                if(strongElem) strongElem.textContent = data.目标倒计时天数 != null ? data.目标倒计时天数 : "--" ;
+                const textNode = Array.from(countdownTextElem.childNodes).find(node => node.nodeType === Node.TEXT_NODE && node.textContent.includes("还剩"));
+                if(textNode) textNode.nodeValue = `${data.目标倒计时描述 || "---"} 还剩 `;
+                else countdownTextElem.insertBefore(document.createTextNode(`${data.目标倒计时描述 || "---"} 还剩 `), strongElem);
+            }
+            const objectiveContentElem = document.querySelector('.top-right-objective .objective-text');
+            if(objectiveContentElem) objectiveContentElem.textContent = data.目标内容 || "---";
+        }
+        
+        // 填充SNS消息 (包含动态头像)
+        function populateSNS(data) {
+            const messageListElem = el('messageList');
+            if (!data || !data.SNS消息列表 || !messageListElem) {
+                if(messageListElem) messageListElem.innerHTML = '<li>无SNS消息</li>';
+                return;
+            }
+            messageListElem.innerHTML = ''; // 清空旧消息
+            const snsNotificationCountElem = el('snsToggleButton').querySelector('.notification-badge');
+            let newMessagesCount = 0;
+
+            data.SNS消息列表.forEach(msg => {
+                if (!msg) return;
+                const li = document.createElement('li');
+                li.className = 'message-item';
+                if (msg.子消息数量 && msg.子消息数量 > 0) {
+                    li.classList.add('has-expandable-content');
+                }
+                if (msg.是否默认选中) {
+                    li.classList.add('selected');
+                }
+                if (msg.是否新消息) {
+                    newMessagesCount++;
+                }
+
+                // 获取头像文件名，如果找不到特定发送者的，用默认的
+                const avatarFileName = snsAvatarMap[msg.发送者] || snsAvatarMap["Default"];
+                const avatarUrl = GITHUB_PAGES_BASE_URL + 'img/' + avatarFileName;
+
+                li.innerHTML = `
+                    <div class="message-item-content">
+                        ${msg.是否新消息 ? '<span class="new-badge">NEW</span>' : ''}
+                        <div class="character-portrait" style="background-image: url('${avatarUrl}');"></div>
+                        <span class="message-date">${msg.日期 || '--/--'}</span>
+                        <p class="message-text">${msg.预览文本 || '...'}</p>
+                    </div>
+                    <span class="selected-indicator">†</span>
+                    ${(msg.子消息数量 && msg.子消息数量 > 0 && msg.子消息列表) ? `
+                        <div class="sub-messages-panel">
+                            ${msg.子消息列表.map(subMsg => `
+                                <div class="sub-message"><span class="sender">${subMsg.发送者 || '??'}:</span> ${subMsg.内容 || ''}</div>
+                            `).join('')}
+                        </div>` : ''
+                    }
+                `;
+                messageListElem.appendChild(li);
+            });
+            if(snsNotificationCountElem) snsNotificationCountElem.textContent = newMessagesCount;
+
+            // 重新绑定事件监听器 (因为内容被替换了)
+            const currentMessageItems = Array.from(messageListElem.querySelectorAll('.message-item'));
+            currentMessageItems.forEach(item => {
+                item.addEventListener('click', function() {
+                    const isAlreadySelected = this.classList.contains('selected');
+                    currentMessageItems.forEach(i => {
+                        i.classList.remove('selected');
+                        if (i !== this) {
+                            const otherSubPanel = i.querySelector('.sub-messages-panel');
+                            if (otherSubPanel) otherSubPanel.style.display = 'none';
+                        }
+                    });
+                    this.classList.add('selected');
+                    const subPanel = this.querySelector('.sub-messages-panel');
+                    if (subPanel) {
+                        if (isAlreadySelected) {
+                            subPanel.style.display = subPanel.style.display === 'block' ? 'none' : 'block';
+                        } else {
+                            subPanel.style.display = 'block';
+                        }
+                    }
+                });
+            });
+        }
+
+        // 填充行动记录 (保持你之前的逻辑，确保ID正确)
+        function populateActivityLog(data) {
+            if (!data) return;
+            el('activityLogDateSubtitle').textContent = data.行动记录日期副标题 || "--/-- 目前";
+            const thiefPanel = el('activityLogContainer').querySelector('.thief-activities');
+            if(thiefPanel) thiefPanel.querySelector('.percentage').textContent = data.行动记录怪盗百分比 || "0%";
+            // ... 填充其他百分比和列表项 ...
+            const thiefList = el('thiefActivityList');
+            if(thiefList){
+                thiefList.innerHTML = '';
+                if(data.行动记录怪盗条目列表 && data.行动记录怪盗条目列表.length > 0){
+                    data.行动记录怪盗条目列表.forEach(item => thiefList.innerHTML += `<li>${item.内容 || item}</li>`);
+                } else {
+                    thiefList.innerHTML = '<li class="no-items">无此项目</li>';
+                }
+            }
+            // 类似地填充 dailyLifeList 和 coopActivityList
+
+            el('averageLevelTextElem').textContent = data.行动记录队伍平均等级描述 || "平均等级";
+            el('playerLevelPrefixElem').textContent = data.行动记录玩家等级前缀 || "LV";
+            el('playerLevelValueElem').textContent = data.行动记录玩家等级数值 || "1";
+        }
+        
+        // 填充主内容面板
+        function populateMainContentPanel(data){
+            if(!data) return;
+            const panel = el('mainContentPanel');
+            const header = el('mainContentHeader');
+            const body = el('injectedContentBody');
+
+            if(data.主内容面板HTML && data.主内容面板HTML.trim() !== ""){
+                header.textContent = data.主内容面板标题 || "信息";
+                body.innerHTML = data.主内容面板HTML;
+                panel.style.display = 'block'; // 或 'flex'，取决于你的CSS
+            } else {
+                panel.style.display = 'none';
+            }
+        }
+
+
+        // --- UI 交互逻辑 ---
+        const snsToggleButton = el('snsToggleButton');
+        const snsMessagesContainer = el('snsMessagesContainer');
+        const activityLogToggleButton = el('activityLogToggleButton');
+        const activityLogContainer = el('activityLogContainer');
+        const activityLogReturnButton = el('activityLogReturnButton');
+
+        snsToggleButton.addEventListener('click', () => {
+            const snsVisible = snsMessagesContainer.style.display === 'block';
+            snsMessagesContainer.style.display = snsVisible ? 'none' : 'block';
+            if (!snsVisible) { activityLogContainer.style.display = 'none'; }
+        });
+
+        activityLogToggleButton.addEventListener('click', () => {
+            const activityVisible = activityLogContainer.style.display === 'block';
+            activityLogContainer.style.display = activityVisible ? 'none' : 'block';
+            if (!activityVisible) { snsMessagesContainer.style.display = 'none'; }
+        });
+
+        activityLogReturnButton.addEventListener('click', () => {
+            activityLogContainer.style.display = 'none';
+        });
+        
+        // --- 初始化和SillyTavern集成 ---
+        // !!! 确保这个函数在你的SillyTavern替换中被调用 !!!
+        // function initializeOrRefreshPanel(aiDataString) {
+        //     console.log("接收到的AI原始数据:", aiDataString);
+        //     const parsedPanelData = parseAIDataToStructuredObject(aiDataString);
+        //     console.log("解析后的面板数据:", parsedPanelData);
+        //
+        //     // manageP5Music(parsedPanelData.音乐文件名); // 确保manageP5Music函数存在
+        //     setRandomBackgroundImage(); // 总是设置随机背景
+        //     populateTopLeftInfo(parsedPanelData);
+        //     populateObjective(parsedPanelData);
+        //     populateSNS(parsedPanelData);
+        //     populateActivityLog(parsedPanelData);
+        //     populateMainContentPanel(parsedPanelData);
+        // }
+
+        // 仅用于在浏览器中独立测试UI的默认行为
+        document.addEventListener('DOMContentLoaded', () => {
+            setRandomBackgroundImage(); // 页面加载时设置一个随机背景
+
+            // 你可以在这里放一些静态的测试数据来填充UI，以便在没有SillyTavern AI数据时也能看到效果
+            const staticTestData = {
+                 当前日期: "4/12", 当前星期: "TUE", 当前时段: "放学后", 当前天气图标: "☀️", 当前天气描述: "晴朗",
+                 目标倒计时描述: "潜入殿堂", 目标倒计时天数: "5", 目标内容: "确保潜入路线",
+                 SNS消息列表: [
+                     { 发送者: "Y", 日期: "4/12二", 预览文本: "关于下次画展的事...", 是否新消息: true, 是否默认选中: false, 子消息数量: 0 },
+                     { 发送者: "R", 日期: "4/11一", 预览文本: "训练辛苦了！", 是否新消息: false, 是否默认选中: true, 子消息数量: 2, 子消息列表: [{发送者:"龙司", 内容:"明天一起去吃拉面？"},{发送者:"Joker",内容:"可以啊。"}] }
+                 ],
+                 行动记录日期副标题: "4月12日 - 新的羁绊",
+                 行动记录怪盗百分比: "10%", 行动记录日常百分比: "60%", 行动记录COOP百分比: "30%",
+                 行动记录队伍平均等级描述: "队伍状态良好", 行动记录玩家等级前缀: "队长 LV", 行动记录玩家等级数值: "5",
+                 行动记录怪盗条目列表: [{内容:"成功潜入殿堂"}],
+                 行动记录日常条目列表: ["上课","在卢布朗打工","和杏一起看电影"],
+                 行动记录COOP条目列表: ["愚者 Rank UP!", "恋爱 Rank UP!"],
+                 主内容面板标题: "阁楼的日常",
+                 主内容面板HTML: "<p>放学后，回到了熟悉的阁楼。摩尔加纳正在窗边打盹。</p><h2>今日计划：</h2><ul><li>制作潜行道具</li><li>学习</li></ul>"
+            };
+            // 如果你的 parseAIDataToStructuredObject, populateXXX 等函数已定义好，可以取消注释下面的调用
+            // populateTopLeftInfo(staticTestData);
+            // populateObjective(staticTestData);
+            // populateSNS(staticTestData);
+            // populateActivityLog(staticTestData);
+            // populateMainContentPanel(staticTestData);
+
+            // 确保你的SillyTavern正则替换会调用一个类似 initializeOrRefreshPanel 的函数
+            // 例如： const rawAIDataFromCaptureGroup = `$1`;
+            // initializeOrRefreshPanel(rawAIDataFromCaptureGroup);
+        });
+
+    </script>
+</body>
 </html>
